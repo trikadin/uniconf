@@ -18,15 +18,19 @@ const
 gulp.task('clean', () => del($C(fs.readdirSync(srcPath)).reduce((res, filename) => {
 	filename = join(destPath, filename);
 
-	res.push(filename);
-
 	if (tsExtReg.test(filename)) {
 		res.push(filename.replace(tsExtReg, '.js'));
+		res.push(filename.replace(tsExtReg, '.d.ts'));
+
+	} else {
+		res.push(filename);
 	}
+
+	return res;
 }, [])));
 
 const buildTask = (() => {
-	const res = project.src().pipe(project);
+	const res = project.src().pipe(project());
 
 	return merge([
 		res.js.pipe(gulp.dest(destPath)),
