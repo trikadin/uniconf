@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "lib": ["es2016"],
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+
+    "newLine": "LF",
+    "declaration": true,
+    "stripInternal": true,
+
+    "pretty": true
+  },
+
+  "include": [
+    "./src/**/*.*"
+  ]
+}
