@@ -60,7 +60,7 @@ const argvDict = Object.freeze($C(process.argv).reduce<ArgvDict>(
 	Object.create(null)
 ));
 
-function flagName(name: string): String {
+function flagName(name: string): string {
 	return `"-${name.length > 1 ? `-${name}` : name}"`;
 }
 
@@ -72,7 +72,10 @@ function flagName(name: string): String {
  * @param [valuesFlags] - словарь значений.
  * Если ключ встречается в аргументах командной строки — функция вернёт соответствующее значение.
  */
-export default function get<T extends object>(flags: string | string[], valuesFlags: T): boolean | string | Values<T> | null;
+export default function get<T extends object>(
+	flags: string | string[],
+	valuesFlags: T
+): boolean | string | Values<T> | null;
 export default function get(flags: string | string[]): boolean | string | null;
 export default function get(flags: string | string[], valuesFlags?: Dictionary): any {
 	if (!Array.isArray(flags)) {
@@ -98,7 +101,7 @@ export default function get(flags: string | string[], valuesFlags?: Dictionary):
 						flagName(flag)
 					} and ${
 						flagName(f)
-					} ${other ? `(also ${other}) ` : ''}shouldn't be set at `);
+					} ${other ? `(also ${other}) ` : ''}shouldn't be set simultaneously`);
 			}
 
 			flag = f;
