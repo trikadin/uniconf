@@ -161,6 +161,12 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Собранный проект
+/core/
+/options/
+/index.js
+/index.d.ts
+
 test.js
 /src-old/
 /stuff/
