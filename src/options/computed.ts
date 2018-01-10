@@ -12,6 +12,6 @@ export function set(handler: Handler): symbol {
 	return sym;
 }
 
-export function get(link: symbol): Handler {
-	return handlersDict[link];
+export function get(link: symbol): Handler | null {
+	return handlersDict[link] || null;
 }

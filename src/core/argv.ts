@@ -2,8 +2,8 @@ import $C = require('collection.js');
 import { Dictionary, Values } from './types';
 
 const
-	shortFlagReg = /^-[a-zA-Z]+$/,
-	longFlagReg = /^-(?:-[a-z][a-z0-9]*)+$/,
+	shortFlagRegExp = /^-[a-zA-Z]+$/,
+	longFlagRegExp = /^-(?:-[a-z][a-z0-9]*)+$/,
 	inverseFlagPrefix = 'no-';
 
 type Argv = boolean | string;
@@ -18,12 +18,12 @@ function setArgv(dict: ArgvDict, argv: string, value: Argv = true): void {
 }
 
 function isValue(value: string | null | undefined): boolean {
-	return Boolean(value && !shortFlagReg.test(value) && !longFlagReg.test(value));
+	return Boolean(value && !shortFlagRegExp.test(value) && !longFlagRegExp.test(value));
 }
 
 const argvDict = Object.freeze($C(process.argv).reduce<ArgvDict>(
 	(res: ArgvDict, arg: string, i: number, argv: string[]) => {
-		if (shortFlagReg.test(arg)) {
+		if (shortFlagRegExp.test(arg)) {
 			const
 				flags = arg.slice(1),
 				next = argv[i + 1];
@@ -37,7 +37,7 @@ const argvDict = Object.freeze($C(process.argv).reduce<ArgvDict>(
 				});
 			}
 
-		} else if (longFlagReg.test(arg)) {
+		} else if (longFlagRegExp.test(arg)) {
 			const
 				flag = arg.slice(2),
 				next = argv[i + 1];
@@ -68,16 +68,28 @@ function flagName(name: string): string {
  * Возвращает значение на основе аргументов командной строки.
  * Если входным данным соответствует несколько значений — выбрасывает ошибку.
  *
+ * @internal
  * @param flags - аргумент(ы) командной строки, значение которых надо получить.
  * @param [valuesFlags] - словарь значений.
  * Если ключ встречается в аргументах командной строки — функция вернёт соответствующее значение.
  */
-export default function get<T extends object>(
+export default function get<T extends {}>(
 	flags: string | string[],
 	valuesFlags: T
 ): boolean | string | Values<T> | null;
-export default function get(flags: string | string[]): boolean | string | null;
-export default function get(flags: string | string[], valuesFlags?: Dictionary): any {
+
+/**
+ * @internal
+ */
+export default function get(
+	flags: string | string[],
+	valuesFlags?: Dictionary | null | undefined
+): boolean | string | null;
+
+export default function get(
+	flags: string | string[],
+	valuesFlags?: Dictionary | null | undefined
+): any {
 	if (!Array.isArray(flags)) {
 		flags = [flags];
 	}
@@ -101,7 +113,7 @@ export default function get(flags: string | string[], valuesFlags?: Dictionary):
 						flagName(flag)
 					} and ${
 						flagName(f)
-					} ${other ? `(also ${other}) ` : ''}shouldn't be set simultaneously`);
+					}${other ? ` (also ${other})` : ''} shouldn't be set simultaneously`);
 			}
 
 			flag = f;
