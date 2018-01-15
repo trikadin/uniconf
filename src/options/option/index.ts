@@ -5,8 +5,10 @@ import sources, { SourceName } from './sources';
 import * as validators from './validators';
 import * as computed from '../computed';
 
+export type SourceValue = SourceName | null;
+
 export interface ValidateFn {
-	(value: any, source: SourceName | null): boolean | string;
+	(value: any, source: SourceValue): boolean | string;
 }
 
 export interface BaseParams {
@@ -14,7 +16,7 @@ export interface BaseParams {
 	default?: any;
 	short?: string;
 
-	coerce?(value: any, source: SourceName | null): any;
+	coerce?(value: any, source: SourceValue): any;
 }
 
 export interface NormalizedParams extends BaseParams {
@@ -90,12 +92,12 @@ function extend(target: NormalizedParams, parent: NormalizedParams, options: Ext
 }
 
 function getValue(params: NormalizedParams): {
-	source: SourceName | null;
+	source: SourceValue;
 	value: any;
 } {
 	let
 		value = null,
-		source: SourceName | null = null;
+		source: SourceValue = null;
 
 	for (let i = 0; i !== sources.length && value == null; ++i) {
 		source = sources[i].name;
