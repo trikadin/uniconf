@@ -45,3 +45,5 @@ const sources: Source[] = [
 		}
 	}
 ];
+
+export default sources;

@@ -6,9 +6,10 @@ function numberCoerce(val: any): any {
 	return Number.isFinite(coercedVal) ? coercedVal : val;
 }
 
-const
-	invalidJson = Symbol('invalid JSON'),
-	portMaxValue = 2 ** 16; // tslint:disable-line:no-magic-numbers
+const enum portRange {
+	min = 0,
+	max = 65536
+}
 
 // tslint:disable:typedef
 const types: Dictionary<NormalizedParams> = {
@@ -49,27 +50,18 @@ const types: Dictionary<NormalizedParams> = {
 		env: 'PORT',
 		coerce: numberCoerce,
 		validate(value) {
-			return Number.isInteger(value) && value > 0 && value < portMaxValue ||
-				`port value should be an integer greater than 0 and lower than ${portMaxValue}`;
+			return Number.isInteger(value) && value > portRange.min && value < portRange.max ||
+				`port value should be an integer greater than ${portRange.min} and lower than ${portRange.max}`;
 		}
 	},
 
 	json: {
 		coerce(value) {
 			if (typeof value === 'string') {
-				try {
-					return JSON.parse(value);
-
-				} catch (_) {
-					return invalidJson;
-				}
+				return JSON.parse(value);
 			}
 
 			return value;
-		},
-
-		validate(value) {
-			return (value !== invalidJson) || 'value should be a valid JSON';
 		}
 	}
 };

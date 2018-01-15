@@ -1,13 +1,12 @@
 import $C = require('collection.js');
 import { Dictionary } from '../../core/types';
 import builtinTypes from './types';
+import sources, { SourceName } from './sources';
 import * as validators from './validators';
 import * as computed from '../computed';
 
-export type SourceKey = null | 'default' | 'env' | 'cli';
-
 export interface ValidateFn {
-	(value: any, source: SourceKey): boolean | string;
+	(value: any, source: SourceName | null): boolean | string;
 }
 
 export interface BaseParams {
@@ -15,7 +14,7 @@ export interface BaseParams {
 	default?: any;
 	short?: string;
 
-	coerce?(value: any, source: SourceKey): any;
+	coerce?(value: any, source: SourceName | null): any;
 }
 
 export interface NormalizedParams extends BaseParams {
@@ -90,6 +89,24 @@ function extend(target: NormalizedParams, parent: NormalizedParams, options: Ext
 	return;
 }
 
-function getValue(params: NormalizedParams): any {
-	
+function getValue(params: NormalizedParams): {
+	source: SourceName | null;
+	value: any;
+} {
+	let
+		value = null,
+		source: SourceName | null = null;
+
+	for (let i = 0; i !== sources.length && value == null; ++i) {
+		source = sources[i].name;
+		value = sources[i].getter(params);
+	}
+
+	return value == null ? {
+		source: null,
+		value: null
+	} : {
+		source,
+		value: (typeof params.coerce === 'function' ? params.coerce(value, source) : value)
+	};
 }
