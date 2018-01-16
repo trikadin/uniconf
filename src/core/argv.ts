@@ -64,6 +64,11 @@ function flagName(name: string): string {
 	return `"-${name.length > 1 ? `-${name}` : name}"`;
 }
 
+export interface CliValue<T> {
+	flag: string | null;
+	value: T | null;
+}
+
 /**
  * Возвращает значение на основе аргументов командной строки.
  * Если входным данным соответствует несколько значений — выбрасывает ошибку.
@@ -76,7 +81,7 @@ function flagName(name: string): string {
 export default function get<T extends {}>(
 	flags: string | string[],
 	valuesFlags: T
-): boolean | string | Values<T> | null;
+): CliValue<boolean | string | Values<T>>;
 
 /**
  * @internal
@@ -84,12 +89,12 @@ export default function get<T extends {}>(
 export default function get(
 	flags: string | string[],
 	valuesFlags?: Dictionary | null | undefined
-): boolean | string | null;
+): CliValue<boolean | string>;
 
 export default function get(
 	flags: string | string[],
 	valuesFlags?: Dictionary | null | undefined
-): any {
+): CliValue<any> {
 	if (!Array.isArray(flags)) {
 		flags = [flags];
 	}
@@ -127,5 +132,8 @@ export default function get(
 		$C(valuesFlags).forEach((v, f) => assignValue(f, v));
 	}
 
-	return value;
+	return {
+		flag: flag ? flagName(flag) : flag,
+		value
+	};
 }

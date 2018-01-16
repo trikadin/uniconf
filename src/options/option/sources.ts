@@ -1,12 +1,25 @@
 import { NormalizedParams } from './';
 import getCliValue from '../../core/argv';
+import { Values } from '../../core/types';
 
-export type SourceName = 'default' | 'env' | 'cli';
-
-export interface Source {
-	name: SourceName;
-	getter(params: NormalizedParams): any;
+export interface SourceValues {
+	default: {};
+	cli: {
+		flag: string | null;
+	},
+	env: {
+		variable: string | null;
+	}
 }
+
+export type SourceName = keyof SourceValues;
+
+export type Source = Values<{
+	[T in SourceName]: {
+		name: T;
+		getter(params: NormalizedParams): SourceValues[T] & {value: any};
+	}
+}>;
 
 // tslint:disable:typedef
 const sources: Source[] = [
@@ -31,17 +44,19 @@ const sources: Source[] = [
 
 	{
 		name: 'env',
-		getter(params) {
-			const {env} = params;
-
-			return env && (env in process.env) ? process.env[env] : null;
+		getter({env}) {
+			const value = env && (env in process.env) ? process.env[env] : null;
+			return {
+				value,
+				variable: value !== null ? <string>env : null
+			};
 		}
 	},
 
 	{
 		name: 'default',
-		getter(params) {
-			return params.default;
+		getter({default: value}) {
+			return {value};
 		}
 	}
 ];
