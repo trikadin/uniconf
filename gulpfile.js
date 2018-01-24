@@ -6,6 +6,7 @@ const
 	$C = require('collection.js'),
 	del = require('del'),
 	gulp = require('gulp'),
+	gutil = require('gulp-util'),
 	ts = require('gulp-typescript'),
 	merge = require('merge2');
 
@@ -32,10 +33,13 @@ gulp.task('clean', () => del($C(fs.readdirSync(srcPath)).reduce((res, filename) 
 const buildTask = (() => {
 	const res = project.src().pipe(project());
 
-	return merge([
-		res.js.pipe(gulp.dest(destPath)),
-		res.dts.pipe(gulp.dest(destPath))
-	]);
+	gutil.log('Build is started');
+
+	merge(res.js, res.dts)
+		.pipe(gulp.dest(destPath))
+		.on('end', () => {
+			gutil.log('Build is complete');
+		});
 }).debounce(300);
 
 gulp.task('build', ['clean'], buildTask);

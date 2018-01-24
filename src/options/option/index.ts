@@ -1,14 +1,15 @@
 import $C = require('collection.js');
 import { Dictionary } from '../../core/types';
 import builtinTypes from './types';
-import sources, { SourceName } from './sources';
+import sources, { SourceName, SourceValues } from './sources';
 import * as validators from './validators';
+import { ValidationError } from './errors';
 import * as computed from '../computed';
 
 export type SourceValue = SourceName | null;
 
 export interface ValidateFn {
-	(value: any, source: SourceValue): boolean | string;
+	(value: any, source: SourceName): boolean | string;
 }
 
 export interface BaseParams {
@@ -16,9 +17,12 @@ export interface BaseParams {
 	default?: any;
 	short?: string;
 
-	coerce?(value: any, source: SourceValue): any;
+	coerce?(value: any, source: SourceName): any;
 }
 
+/**
+ * @internal
+ */
 export interface NormalizedParams extends BaseParams {
 	argv?: string;
 	env?: string;
@@ -91,7 +95,7 @@ function extend(target: NormalizedParams, parent: NormalizedParams, options: Ext
 	return;
 }
 
-function getValue(params: NormalizedParams): {
+function getValue(name: string, params: NormalizedParams): {
 	source: SourceValue;
 	value: any;
 } {
@@ -99,16 +103,41 @@ function getValue(params: NormalizedParams): {
 		value = null,
 		source: SourceValue = null;
 
-	for (let i = 0; i !== sources.length && value == null; ++i) {
-		source = sources[i].name;
+	for (let i = 0; i !== sources.length && !source; ++i) {
 		value = sources[i].getter(params);
+
+		if (value != null) {
+			source = sources[i].name;
+		}
 	}
 
-	return value == null ? {
-		source: null,
-		value: null
-	} : {
-		source,
-		value: (typeof params.coerce === 'function' ? params.coerce(value, source) : value)
-	};
+	if (source == null) {
+		if (params.required) {
+			console.log();
+		}
+
+		return {
+			source: null,
+			value: null
+		};
+	}
+
+	if (typeof params.coerce === 'function') {
+		try {
+			value = params.coerce(value, source);
+
+		} catch (error) {
+
+		}
+	}
+
+	if (typeof params.validate === 'function') {
+		const res = params.validate(value, source);
+
+		if (res !== true) {
+			console.log();
+		}
+	}
+
+	return <any>null;
 }

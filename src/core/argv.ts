@@ -1,5 +1,6 @@
 import $C = require('collection.js');
 import { Dictionary, Values } from './types';
+import { dict } from './';
 
 const
 	shortFlagRegExp = /^-[a-zA-Z]+$/,
@@ -57,10 +58,10 @@ const argvDict = Object.freeze($C(process.argv).reduce<ArgvDict>(
 		return res;
 	},
 
-	Object.create(null)
+	dict()
 ));
 
-function flagName(name: string): string {
+export function flagName(name: string): string {
 	return `"-${name.length > 1 ? `-${name}` : name}"`;
 }
 
@@ -71,7 +72,8 @@ export interface CliValue<T> {
 
 /**
  * Возвращает значение на основе аргументов командной строки.
- * Если входным данным соответствует несколько значений — выбрасывает ошибку.
+ * Если в аргументах командной строки встретилось более одного из переданных флагов,
+ * функция выбрасывает ошибку.
  *
  * @internal
  * @param flags - аргумент(ы) командной строки, значение которых надо получить.
@@ -132,8 +134,5 @@ export default function get(
 		$C(valuesFlags).forEach((v, f) => assignValue(f, v));
 	}
 
-	return {
-		flag: flag ? flagName(flag) : flag,
-		value
-	};
+	return {flag, value};
 }

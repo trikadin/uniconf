@@ -5,3 +5,15 @@ export type Dictionary<V = any> = {
 };
 
 export type Values<T> = T[keyof T];
+
+export interface ValidationError<T = string> {
+	type: 'error';
+	reason: T;
+}
+
+export interface ValidationWarning<T = string> {
+	type: 'warning';
+	reason: T;
+}
+
+export type ValidationResult<T = string> = true | ValidationWarning<T> | ValidationError<T>;

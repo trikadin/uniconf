@@ -3,17 +3,17 @@ import builtinTypes from './types';
 import { Params } from './';
 
 const
-	flagRegExp = /^[a-z](?:(?:-[a-z])?[a-z0-9]?)*$/,
+	flagRegExp = /^[a-z](?:(?:-[a-z0-9])?[a-z0-9]?)*$/,
 	flagSchema = joi.string().regex(flagRegExp, 'flag name');
 
-const nameSchema = joi.string().regex(flagRegExp, 'name');
+const nameSchema = joi.string().min(2).regex(flagRegExp, 'name');
 
 const paramsSchema = joi.object({
 	required: joi.boolean(),
 
 	default: joi.any().default(null),
 
-	argv: joi.alternatives(flagSchema.min(1), joi.boolean()).default(true),
+	argv: joi.alternatives(flagSchema.min(2), joi.boolean()).default(true),
 
 	env: joi.alternatives(joi.string().min(1), joi.boolean()).default(true),
 
@@ -37,7 +37,7 @@ const paramsSchema = joi.object({
 		joi.object().type(RegExp),
 		joi.array()
 	)
-}).nand('required', 'default').unknown(false);
+}).unknown(false);
 
 const validateOptions: joi.ValidationOptions = {
 	convert: false

@@ -2,7 +2,7 @@ import { NormalizedParams } from './';
 import getCliValue from '../../core/argv';
 import { Values } from '../../core/types';
 
-export interface SourceValues {
+export interface SourceDetails {
 	default: {};
 	cli: {
 		flag: string | null;
@@ -12,12 +12,16 @@ export interface SourceValues {
 	}
 }
 
-export type SourceName = keyof SourceValues;
+export type SourceName = keyof SourceDetails;
+
+export type SourceValues = {
+	[S in SourceName]: SourceDetails[S] & {value: any}
+};
 
 export type Source = Values<{
 	[T in SourceName]: {
 		name: T;
-		getter(params: NormalizedParams): SourceValues[T] & {value: any};
+		getter(params: NormalizedParams): SourceValues[T];
 	}
 }>;
 
