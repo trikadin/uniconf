@@ -1,12 +1,16 @@
+import $C = require('collection.js');
 import joi = require('joi');
 import builtinTypes from './types';
 import { Params } from './';
+import { platformKeys } from '../../core/platform';
 
 const
 	flagRegExp = /^[a-z](?:(?:-[a-z0-9])?[a-z0-9]?)*$/,
 	flagSchema = joi.string().regex(flagRegExp, 'flag name');
 
-const nameSchema = joi.string().min(2).regex(flagRegExp, 'name');
+const
+	nameSchema = joi.string().min(2).regex(flagRegExp, 'name'),
+	nonEmptyStringSchema = joi.string().min(1);
 
 const paramsSchema = joi.object({
 	required: joi.boolean(),
@@ -15,7 +19,11 @@ const paramsSchema = joi.object({
 
 	argv: joi.alternatives(flagSchema.min(2), joi.boolean()).default(true),
 
-	env: joi.alternatives(joi.string().min(1), joi.boolean()).default(true),
+	env: joi.alternatives(
+		joi.string().min(1),
+		joi.boolean(),
+		joi.object($C(platformKeys).map(() => nonEmptyStringSchema))
+	).default(true),
 
 	short: joi
 		.string()
