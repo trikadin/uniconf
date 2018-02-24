@@ -17,3 +17,12 @@ export interface ValidationWarning<T = string> {
 }
 
 export type ValidationResult<T = string> = true | ValidationWarning<T> | ValidationError<T>;
+
+export type Diff<U extends string, E extends string> =
+	({[K in U]: K} & {[K in E]: never} & {[N: string]: never})[U];
+
+export type Omit<O, K extends keyof O> = Pick<O, Diff<keyof O, K>>;
+
+export type Override<T, U> = Omit<T, (keyof T) & (keyof U)> & U;
+
+export type Subtype<P, C extends P> = C;
